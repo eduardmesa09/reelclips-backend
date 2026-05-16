@@ -8,7 +8,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class InteraccionesModulo {
+public class InteraccionesFacade {
 
     private final InteraccionService service;
 

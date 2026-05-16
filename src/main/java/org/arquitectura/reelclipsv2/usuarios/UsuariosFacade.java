@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UsuariosModulo implements IUsuarioModuloApi {
+public class UsuariosFacade implements IUsuarioModuloApi {
 
     private final UsuarioService service;
 

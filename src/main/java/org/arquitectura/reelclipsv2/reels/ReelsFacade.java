@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ReelsModulo implements IReelModuloApi {
+public class ReelsFacade implements IReelModuloApi {
 
     private final ReelService service;
 

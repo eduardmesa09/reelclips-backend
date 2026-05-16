@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ChatModulo {
+public class ChatFacade {
 
     private final ChatService service;
 
@@ -25,5 +25,9 @@ public class ChatModulo {
 
     public List<MensajeInfo> obtenerMensajes(Long conversacionId, Long usuarioId) {
         return service.obtenerMensajes(conversacionId, usuarioId);
+    }
+
+    public Long[] obtenerParticipantes(Long conversacionId) {
+        return service.obtenerParticipantes(conversacionId);
     }
 }

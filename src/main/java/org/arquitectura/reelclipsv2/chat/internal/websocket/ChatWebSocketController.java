@@ -2,8 +2,8 @@ package org.arquitectura.reelclipsv2.chat.internal.websocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.arquitectura.reelclipsv2.chat.ChatFacade;
 import org.arquitectura.reelclipsv2.chat.api.dto.MensajeInfo;
-import org.arquitectura.reelclipsv2.chat.internal.service.ChatService;
 import org.arquitectura.reelclipsv2.shared.exception.AccesoDenegadoException;
 import org.arquitectura.reelclipsv2.shared.exception.RecursoNoEncontradoException;
 import org.arquitectura.reelclipsv2.shared.exception.ReglaNegocioException;
@@ -17,14 +17,14 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class ChatWebSocketController {
 
-    private final ChatService chatService;
+    private final ChatFacade chatFacade;
     private final SimpMessagingTemplate messagingTemplate;
 
     // El cliente envía a: /app/chat.enviar
     @MessageMapping("/chat.enviar")
     public void enviarMensaje(@Payload MensajeEntranteWS entrada) {
         try {
-            MensajeInfo guardado = chatService.enviarMensaje(
+            MensajeInfo guardado = chatFacade.enviarMensaje(
                     entrada.conversacionId(),
                     entrada.remitenteId(),
                     entrada.contenido(),
@@ -75,6 +75,6 @@ public class ChatWebSocketController {
     }
 
     private Long[] obtenerParticipantes(Long conversacionId) {
-        return chatService.obtenerParticipantes(conversacionId);
+        return chatFacade.obtenerParticipantes(conversacionId);
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class FacadeFeed {
+public class FeedFacade {
 
     private final IReelRepository reelRepo;
     private final ICategoriaRepository categoriaRepo;
