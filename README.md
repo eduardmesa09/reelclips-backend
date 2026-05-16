@@ -395,28 +395,93 @@ El usuario se identifica durante el handshake con el parámetro `usuarioId`:
 
 ## Configuración
 
-El archivo principal de configuración está en:
+El proyecto usa variables de entorno para separar la configuración local de los valores sensibles. Las variables son obligatorias: si falta alguna, Docker Compose o Spring Boot deben fallar al iniciar.
+
+El archivo de referencia es:
+
+```text
+.env.example
+```
+
+Para preparar el entorno local, copia ese archivo como `.env` y completa los valores:
+
+```bash
+cp .env.example .env
+```
+
+En PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+El archivo `.env` no debe subirse al repositorio porque contiene credenciales. Ya está excluido en `.gitignore`.
+
+Variables disponibles:
+
+| Variable | Uso |
+|----------|-----|
+| `DB_URL` | URL JDBC de PostgreSQL |
+| `DB_USERNAME` | Usuario de PostgreSQL |
+| `DB_PASSWORD` | Contraseña de PostgreSQL |
+| `SUPABASE_URL` | URL del proyecto de Supabase |
+| `SUPABASE_KEY` | Llave de acceso a Supabase Storage |
+| `SUPABASE_BUCKET_REELS` | Bucket para videos |
+| `SUPABASE_BUCKET_IMAGENES` | Bucket para imágenes de perfil |
+| `APP_PORT` | Puerto público opcional para Docker Compose |
+
+Ejemplo de `.env`:
+
+```properties
+DB_URL=jdbc:postgresql://postgres:5432/reelclips_db
+DB_USERNAME=postgres
+DB_PASSWORD=reelclips123
+
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_KEY=tu_supabase_key
+SUPABASE_BUCKET_REELS=reels
+SUPABASE_BUCKET_IMAGENES=imagenes-perfil
+APP_PORT=8082
+```
+
+El archivo principal de configuración de Spring Boot sigue estando en:
 
 ```text
 src/main/resources/application.properties
 ```
 
-Variables principales:
+Ese archivo lee directamente las variables de entorno. No define valores por defecto:
 
 ```properties
 server.port=8082
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/reelclips_db
-spring.datasource.username=postgres
-spring.datasource.password=reelclips123
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.hibernate.ddl-auto=update
 
-supabase.url=https://...
-supabase.key=...
-supabase.bucket.reels=reels
-supabase.bucket.imagenes=imagenes-perfil
+supabase.url=${SUPABASE_URL}
+supabase.key=${SUPABASE_KEY}
+supabase.bucket.reels=${SUPABASE_BUCKET_REELS}
+supabase.bucket.imagenes=${SUPABASE_BUCKET_IMAGENES}
+```
+
+Docker Compose carga `.env` automáticamente. Si existe una variable con el mismo nombre exportada en la terminal, Docker Compose puede darle prioridad sobre el valor del archivo `.env`; en ese caso, limpia la variable de la sesión o abre una terminal nueva.
+
+Si ejecutas la app con Maven, `.env` no se carga por sí solo; debes exportar las variables en tu terminal.
+
+En Docker Compose, la app se conecta a PostgreSQL usando el host interno `postgres`, no `localhost`. Por eso, para Docker, `DB_URL` debe ser:
+
+```properties
+DB_URL=jdbc:postgresql://postgres:5432/reelclips_db
+```
+
+Si vas a ejecutar la app con Maven fuera de Docker, usa `localhost` al exportar `DB_URL`:
+
+```properties
+DB_URL=jdbc:postgresql://localhost:5432/reelclips_db
 ```
 
 ---
@@ -431,6 +496,27 @@ supabase.bucket.imagenes=imagenes-perfil
 - Cuenta y buckets configurados en Supabase Storage
 
 ### Levantar la aplicación completa con Docker
+
+Antes de levantar los servicios, crea el archivo `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Edita `.env` y completa como mínimo:
+
+```properties
+DB_URL=jdbc:postgresql://postgres:5432/reelclips_db
+DB_USERNAME=postgres
+DB_PASSWORD=reelclips123
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_KEY=tu_supabase_key
+SUPABASE_BUCKET_REELS=reels
+SUPABASE_BUCKET_IMAGENES=imagenes-perfil
+APP_PORT=8082
+```
+
+Luego ejecuta:
 
 ```bash
 docker compose up -d
@@ -461,7 +547,26 @@ docker compose down
 
 El volumen `reelclips_data` conserva los datos de PostgreSQL entre reinicios.
 
+Si cambiaste variables en `.env`, reinicia los servicios:
+
+```bash
+docker compose down
+docker compose up -d --build
+```
+
 ### Ejecutar el backend sin Docker
+
+Si ejecutas el backend directamente con Maven, asegúrate de tener PostgreSQL corriendo localmente. Maven no carga `.env` automáticamente, así que debes exportar las variables si quieres usar los valores de ese archivo.
+
+En PowerShell:
+
+```powershell
+$env:DB_URL="jdbc:postgresql://localhost:5432/reelclips_db"
+$env:DB_USERNAME="postgres"
+$env:DB_PASSWORD="reelclips123"
+$env:SUPABASE_URL="https://tu-proyecto.supabase.co"
+$env:SUPABASE_KEY="tu_supabase_key"
+```
 
 En Windows:
 
@@ -538,7 +643,8 @@ El proyecto cuenta con:
 - [x] Chat en tiempo real con WebSocket/STOMP
 - [x] Documentación Swagger/OpenAPI
 - [x] Integración con Supabase Storage
-- [x] Docker Compose para PostgreSQL local
+- [x] Variables de entorno con `.env.example`
+- [x] Docker Compose para backend + PostgreSQL
 - [ ] Frontend integrado en este repositorio
 - [ ] Pruebas de integración completas
 - [ ] Despliegue en producción
