@@ -14,7 +14,9 @@ services:
       SUPABASE_BUCKET_REELS: ${SUPABASE_BUCKET_REELS?Debes definir SUPABASE_BUCKET_REELS en .env}
       SUPABASE_BUCKET_IMAGENES: ${SUPABASE_BUCKET_IMAGENES?Debes definir SUPABASE_BUCKET_IMAGENES en .env}
     ports:
-      - "${APP_PORT?Debes definir APP_PORT en .env}:8082"
+      - target: 8082
+        published: "${APP_PORT?APP_PORT}"
+        protocol: tcp
     restart: unless-stopped
 
   postgres:
