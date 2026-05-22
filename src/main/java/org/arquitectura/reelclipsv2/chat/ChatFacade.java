@@ -6,6 +6,7 @@ import org.arquitectura.reelclipsv2.chat.api.dto.MensajeInfo;
 import org.arquitectura.reelclipsv2.chat.internal.service.ChatService;
 import org.arquitectura.reelclipsv2.shared.enums.TipoMensaje;
 import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 @Component
@@ -16,6 +17,10 @@ public class ChatFacade {
 
     public ConversacionInfo iniciarConversacion(Long usuarioId, Long destinatarioId) {
         return service.iniciarConversacion(usuarioId, destinatarioId);
+    }
+
+    public List<ConversacionInfo> obtenerConversaciones(Long usuarioId) {
+        return service.obtenerConversaciones(usuarioId);
     }
 
     public MensajeInfo enviarMensaje(Long conversacionId, Long remitenteId,
