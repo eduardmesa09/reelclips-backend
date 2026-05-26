@@ -9,7 +9,13 @@ import org.arquitectura.reelclipsv2.reels.internal.repository.IReelRepository;
 import org.arquitectura.reelclipsv2.reels.internal.service.ReelService;
 import org.arquitectura.reelclipsv2.shared.enums.EstadoReel;
 import org.springframework.stereotype.Component;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +27,7 @@ public class FeedFacade {
     private final ReelService reelService;
 
     // RF-20, RF-21, RF-22
-    public FeedResponse obtenerFeed(Long usuarioId, List<String> categorias, int pagina) {
+    public FeedResponse obtenerFeed(Long usuarioId, List<String> categorias, int pagina, Long seed) {
         // 1. Obtener todos los reels activos
         List<Reel> reels = reelRepo.findByEstado(EstadoReel.ACTIVO);
 
@@ -36,7 +42,26 @@ public class FeedFacade {
                     .toList();
         }
 
-        // 4. Paginar (RF-22, RN-14)
+        // 4. Mezclar resultados con una semilla estable por usuario/filtro/ventana
+        reels = new ArrayList<>(reels);
+        Collections.shuffle(reels, new Random(calcularSemilla(usuarioId, categorias, seed)));
+
+        // 5. Paginar (RF-22, RN-14)
         return paginacion.paginar(reels, pagina, reelService);
+    }
+
+    private long calcularSemilla(Long usuarioId, List<String> categorias, Long seed) {
+        if (seed != null) {
+            return Objects.hash(usuarioId, categoriasNormalizadas(categorias), seed);
+        }
+
+        long ventanaHoraUtc = ZonedDateTime.now(ZoneOffset.UTC).toEpochSecond() / 3600;
+        return Objects.hash(usuarioId, categoriasNormalizadas(categorias), ventanaHoraUtc);
+    }
+
+    private List<String> categoriasNormalizadas(List<String> categorias) {
+        return categorias == null
+                ? List.of()
+                : categorias.stream().sorted().toList();
     }
 }
