@@ -1,7 +1,7 @@
 # ADR-0004: Aplicar patrón Proxy para acceso a reels
 
 - **Status:** Accepted
-- **Fecha:** 2026-05-24
+- **Fecha:** 2026-05-26
 - **Autores:** Equipo ReelClips
 
 ---
