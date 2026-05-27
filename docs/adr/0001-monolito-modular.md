@@ -1,7 +1,7 @@
 # ADR-0001: Adoptar arquitectura de monolito modular
 
 - **Status:** Accepted
-- **Fecha:** 2026-05-24
+- **Fecha:** 2026-05-26
 - **Autores:** Equipo ReelClips
 
 ---
@@ -15,6 +15,15 @@ ReelClips posee varios dominios funcionales claramente definidos, como usuarios,
 ## Decisión
 
 Se adopta una arquitectura de **monolito modular**. La aplicación se desplegará como una única unidad ejecutable, pero organizada internamente en módulos con responsabilidades separadas y fronteras claras.
+
+---
+## Opciones evaluadas
+
+| Opción                    | Ventajas                                      | Desventajas                                      | Decisión   |
+|---------------------------|-----------------------------------------------|--------------------------------------------------|------------|
+| Monolito clásico          | Muy simple de desarrollar                     | Alta probabilidad de acoplamiento futuro         | Rechazada  |
+| **Monolito Modular**      | Buen equilibrio entre simplicidad y mantenibilidad | Menor escalabilidad independiente           | **Aceptada** |
+| Microservicios            | Escalabilidad y despliegue independiente      | Alta complejidad operativa e infraestructura     | Rechazada  |
 
 ---
 
