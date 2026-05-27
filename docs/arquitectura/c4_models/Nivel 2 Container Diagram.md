@@ -20,7 +20,7 @@ flowchart LR
  
         PG[("PostgreSQL<br/><b>Base de datos relacional</b><br/>Responsabilidad: persistir la información transaccional del dominio.<br/>Datos que persiste: usuarios, canales, reels, categorías, reacciones, comentarios, conversaciones y mensajes.")]:::data
  
-        REDIS[("Redis<br/><b>Caché en memoria</b><br/>Responsabilidad: acelerar el feed y consultas repetitivas.<br/>Datos que consume y mantiene temporalmente: sesiones, feed paginado, contadores e identificadores de acceso rápido.")]:::data
+        CACHÉ[("Caché<br/><b>Caché en memoria</b><br/>Responsabilidad: acelerar el feed y consultas repetitivas.<br/>Datos que consume y mantiene temporalmente: sesiones, feed paginado, contadores e identificadores de acceso rápido.")]:::data
  
         SUPA["Supabase Storage<br/><b>Almacenamiento de objetos</b><br/>Responsabilidad: guardar y servir archivos multimedia.<br/>Datos que persiste: videos de reels e imágenes de perfil."]:::ext
     end
@@ -49,7 +49,7 @@ flowchart LR
 | Frontend Web | Next.js + TypeScript | Proporciona la interfaz gráfica de ReelClips | Consume reels, perfiles, categorías, mensajes y notificaciones |
 | Backend API | Spring Boot + Java 17 | Aplica reglas de negocio y coordina el monolito modular | Consume y persiste usuarios, reels, comentarios, categorías, interacciones y chats |
 | PostgreSQL | PostgreSQL | Persistencia relacional del dominio | Guarda usuarios, reels, categorías, comentarios, conversaciones y mensajes |
-| Redis | Redis | Optimización mediante caché | Mantiene sesiones, feed paginado y consultas frecuentes |
+| Caché | Caché | Optimización mediante caché | Mantiene sesiones, feed paginado y consultas frecuentes |
 | Supabase Storage | Supabase Storage | Almacenamiento multimedia externo | Guarda videos de reels e imágenes de perfil |
  
 ---
