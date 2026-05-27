@@ -20,8 +20,8 @@ flowchart LR
  
     RC[ReelClips<br/><i>Sistema de software</i><br/>Plataforma de videos cortos e interacciones]:::system
  
-    SUPA[Supabase Storage<br/><i>Sistema externo</i><br/>Guarda videos e imágenes]:::external
-    DB[(Base de Datos PostgreSQL<br/><i>Sistema externo</i><br/>Datos relacionales del dominio)]:::external
+    SUPA[Almacenamiento contenido - Supabase<br/><i>Sistema externo</i><br/>Guarda videos e imágenes]:::external
+    DB[(Base de Datos - PostgreSQL<br/><i>Sistema externo</i><br/>Datos relacionales del dominio)]:::external
     CACHÉ[(Caché<br/><i>Sistema externo</i><br/>Caché de contenido frecuente)]:::external
  
     U1 -->|Visualiza| RC
