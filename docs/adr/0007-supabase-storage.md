@@ -1,7 +1,7 @@
 # ADR-0007: Usar Supabase Storage para almacenar videos e imágenes
 
 - **Status:** Accepted
-- **Fecha:** 2026-05-24
+- **Fecha:** 2026-05-26
 - **Autores:** Equipo ReelClips
 
 ---
@@ -18,6 +18,15 @@ Se utilizará **Supabase Storage** para almacenar los videos de los reels y las 
 
 ---
 
+## Opciones evaluadas
+
+| Opción                    | Ventajas                           | Desventajas                          | Decisión   |
+|---------------------------|------------------------------------|--------------------------------------|------------|
+| Almacenar en PostgreSQL   | Todo centralizado                  | Degrada rendimiento y backups        | Rechazada  |
+| **Supabase Storage**      | Desacoplado y optimizado para archivos | Dependencia de servicio externo   | **Aceptada** |
+| AWS S3                    | Muy robusto y escalable            | Mayor complejidad y costo            | Rechazada  |
+
+---
 ## Consecuencias
 
 ### Positivas
