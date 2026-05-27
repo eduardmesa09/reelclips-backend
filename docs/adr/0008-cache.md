@@ -1,4 +1,4 @@
-# ADR-0008: Usar Redis como caché para feed y consultas frecuentes
+# ADR-0008: Usar caché para feed y consultas frecuentes
 
 - **Status:** Accepted
 - **Fecha:** 2026-05-26
@@ -14,7 +14,7 @@ El feed de ReelClips debe responder rápidamente y soportar scroll infinito. Ade
 
 ## Decisión
 
-Se utilizará **Redis** como caché en memoria para almacenar resultados frecuentes, datos temporales y consultas de alta repetición, especialmente en el feed y en operaciones de lectura intensiva.
+Se utilizará caché en memoria para almacenar resultados frecuentes, datos temporales y consultas de alta repetición, especialmente en el feed y en operaciones de lectura intensiva.
 
 ---
 
@@ -23,7 +23,7 @@ Se utilizará **Redis** como caché en memoria para almacenar resultados frecuen
 | Opción             | Ventajas                  | Desventajas                   | Decisión   |
 |--------------------|---------------------------|-------------------------------|------------|
 | Solo PostgreSQL    | Simplicidad               | Mayor latencia en consultas   | Rechazada  |
-| **Redis como caché** | Baja latencia             | Requiere estrategia de invalidación | **Aceptada** |
+| **Caché** | Baja latencia             | Requiere estrategia de invalidación | **Aceptada** |
 | Hazelcast          | Más funcionalidades       | Mayor complejidad             | Rechazada  |
 
 ---
