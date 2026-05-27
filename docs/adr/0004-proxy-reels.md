@@ -18,6 +18,15 @@ Se implementa el patrón **Proxy** para controlar el acceso a los reels, gestion
 
 ---
 
+## Opciones evaluadas
+
+| Opción                    | Ventajas                           | Desventajas                          | Decisión   |
+|---------------------------|------------------------------------|--------------------------------------|------------|
+| Acceso directo al storage | Simple                             | Baja performance y sin control       | Rechazada  |
+| **Proxy + Caché**         | Mejora rendimiento y seguridad     | Agrega una capa de complejidad       | **Aceptada** |
+| CDN externo               | Excelente rendimiento              | Mayor costo y complejidad            | Rechazada  |
+
+---
 ## Consecuencias
 
 ### Positivas
