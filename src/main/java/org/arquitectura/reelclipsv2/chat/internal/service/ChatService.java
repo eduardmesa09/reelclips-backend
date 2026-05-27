@@ -1,5 +1,6 @@
 package org.arquitectura.reelclipsv2.chat.internal.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.arquitectura.reelclipsv2.chat.api.dto.ConversacionInfo;
 import org.arquitectura.reelclipsv2.chat.api.dto.MensajeInfo;
@@ -13,7 +14,6 @@ import org.arquitectura.reelclipsv2.shared.exception.RecursoNoEncontradoExceptio
 import org.arquitectura.reelclipsv2.shared.exception.ReglaNegocioException;
 import org.arquitectura.reelclipsv2.usuarios.api.IUsuarioModuloApi;
 import org.arquitectura.reelclipsv2.usuarios.internal.model.Usuario;
-import org.arquitectura.reelclipsv2.usuarios.internal.repository.IUsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,12 +25,12 @@ public class ChatService {
 
     private final IConversacionRepository conversacionRepo;
     private final IMensajeRepository mensajeRepo;
-    private final IUsuarioRepository usuarioRepo;
     private final IUsuarioModuloApi usuarioModuloApi;
+    private final EntityManager entityManager;
 
     public Long[] obtenerParticipantes(Long conversacionId) {
         Conversacion conversacion = conversacionRepo.findById(conversacionId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Conversación no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Conversacion no encontrada"));
         return new Long[]{
                 conversacion.getUsuario1().getId(),
                 conversacion.getUsuario2().getId()
@@ -45,16 +45,14 @@ public class ChatService {
             throw new RecursoNoEncontradoException("El destinatario no existe");
         }
         if (usuarioId.equals(destinatarioId)) {
-            throw new ReglaNegocioException("No puedes iniciar una conversación contigo mismo");
+            throw new ReglaNegocioException("No puedes iniciar una conversacion contigo mismo");
         }
 
         return conversacionRepo.findEntreUsuarios(usuarioId, destinatarioId)
                 .map(this::toInfo)
                 .orElseGet(() -> {
-                    Usuario u1 = usuarioRepo.findById(usuarioId)
-                            .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
-                    Usuario u2 = usuarioRepo.findById(destinatarioId)
-                            .orElseThrow(() -> new RecursoNoEncontradoException("Destinatario no encontrado"));
+                    Usuario u1 = entityManager.getReference(Usuario.class, usuarioId);
+                    Usuario u2 = entityManager.getReference(Usuario.class, destinatarioId);
 
                     Conversacion conversacion = Conversacion.builder()
                             .usuario1(u1)
@@ -85,25 +83,24 @@ public class ChatService {
         }
 
         Conversacion conversacion = conversacionRepo.findById(conversacionId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Conversación no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Conversacion no encontrada"));
 
         boolean esParticipante =
                 conversacion.getUsuario1().getId().equals(remitenteId) ||
                         conversacion.getUsuario2().getId().equals(remitenteId);
         if (!esParticipante) {
-            throw new AccesoDenegadoException("No eres participante de esta conversación");
+            throw new AccesoDenegadoException("No eres participante de esta conversacion");
         }
 
         if (contenido == null || contenido.isBlank()) {
-            throw new ReglaNegocioException("El mensaje no puede estar vacío");
+            throw new ReglaNegocioException("El mensaje no puede estar vacio");
         }
 
         if (tipoMensaje == TipoMensaje.ENLACE_REEL && reelReferidoId == null) {
             throw new ReglaNegocioException("Debes indicar el reel al que hace referencia el mensaje");
         }
 
-        Usuario remitente = usuarioRepo.findById(remitenteId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+        Usuario remitente = entityManager.getReference(Usuario.class, remitenteId);
 
         Mensaje mensaje = Mensaje.builder()
                 .conversacion(conversacion)
@@ -119,13 +116,13 @@ public class ChatService {
 
     public List<MensajeInfo> obtenerMensajes(Long conversacionId, Long usuarioId) {
         Conversacion conversacion = conversacionRepo.findById(conversacionId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Conversación no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Conversacion no encontrada"));
 
         boolean esParticipante =
                 conversacion.getUsuario1().getId().equals(usuarioId) ||
                         conversacion.getUsuario2().getId().equals(usuarioId);
         if (!esParticipante) {
-            throw new AccesoDenegadoException("No eres participante de esta conversación");
+            throw new AccesoDenegadoException("No eres participante de esta conversacion");
         }
 
         return mensajeRepo.findByConversacionIdOrderByFechaEnvioAsc(conversacionId)

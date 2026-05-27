@@ -150,6 +150,12 @@ public class UsuarioService {
                 .orElse(false);
     }
 
+    public Long obtenerCanalId(Long usuarioId) {
+        return canalRepo.findByUsuarioId(usuarioId)
+                .map(Canal::getId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Canal no encontrado para el usuario: " + usuarioId));
+    }
+
     private Usuario buscar(Long id) {
         return usuarioRepo.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado: " + id));

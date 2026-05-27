@@ -9,4 +9,5 @@ public interface IReelModuloApi {
     boolean existePorId(Long id);
     List<ReelInfo> listarPublicos();
     List<ReelInfo> listarPorCanal(Long canalId);
+    void actualizarMetricas(Long reelId, String tipoEvento);
 }

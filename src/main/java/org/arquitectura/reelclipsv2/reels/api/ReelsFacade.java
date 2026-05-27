@@ -56,4 +56,9 @@ public class ReelsFacade implements IReelModuloApi {
     public List<ReelInfo> listarPorCanal(Long canalId) {
         return service.listarPorCanal(canalId);
     }
+
+    @Override
+    public void actualizarMetricas(Long reelId, String tipoEvento) {
+        service.actualizarMetricas(reelId, tipoEvento);
+    }
 }

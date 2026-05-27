@@ -61,4 +61,9 @@ public class UsuariosFacade implements IUsuarioModuloApi {
     public boolean estaActivo(Long id) {
         return service.estaActivo(id);
     }
+
+    @Override
+    public Long obtenerCanalId(Long usuarioId) {
+        return service.obtenerCanalId(usuarioId);
+    }
 }

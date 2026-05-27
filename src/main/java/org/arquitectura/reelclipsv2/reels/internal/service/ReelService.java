@@ -1,8 +1,9 @@
 package org.arquitectura.reelclipsv2.reels.internal.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.arquitectura.reelclipsv2.categorias.api.ICategoriaModuloApi;
 import org.arquitectura.reelclipsv2.categorias.internal.model.Categoria;
-import org.arquitectura.reelclipsv2.categorias.internal.repository.ICategoriaRepository;
 import org.arquitectura.reelclipsv2.reels.api.dto.ReelInfo;
 import org.arquitectura.reelclipsv2.reels.internal.model.Reel;
 import org.arquitectura.reelclipsv2.reels.internal.proxy.CacheVideo;
@@ -11,8 +12,8 @@ import org.arquitectura.reelclipsv2.shared.enums.EstadoReel;
 import org.arquitectura.reelclipsv2.shared.exception.AccesoDenegadoException;
 import org.arquitectura.reelclipsv2.shared.exception.RecursoNoEncontradoException;
 import org.arquitectura.reelclipsv2.shared.exception.ReglaNegocioException;
+import org.arquitectura.reelclipsv2.usuarios.api.IUsuarioModuloApi;
 import org.arquitectura.reelclipsv2.usuarios.internal.model.Canal;
-import org.arquitectura.reelclipsv2.usuarios.internal.repository.ICanalRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,11 +24,11 @@ import java.util.List;
 public class ReelService {
 
     private final IReelRepository reelRepo;
-    private final ICanalRepository canalRepo;
-    private final ICategoriaRepository categoriaRepo;
+    private final ICategoriaModuloApi categoriaModuloApi;
+    private final IUsuarioModuloApi usuarioModuloApi;
     private final CacheVideo cache;
+    private final EntityManager entityManager;
 
-    // RF-07 Publicacion
     public ReelInfo publicar(Long usuarioId, String urlVideo, String descripcion,
                              int duracionSegundos, double tamanoMB, List<Long> categoriaIds) {
         if (duracionSegundos > 90) {
@@ -40,9 +41,8 @@ public class ReelService {
             throw new ReglaNegocioException("Debes asignar al menos una categoria al reel");
         }
 
-        Canal canal = canalRepo.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Canal no encontrado para el usuario: " + usuarioId));
-
+        Long canalId = usuarioModuloApi.obtenerCanalId(usuarioId);
+        Canal canal = entityManager.getReference(Canal.class, canalId);
         List<Categoria> categorias = obtenerCategoriasValidas(categoriaIds);
 
         Reel reel = Reel.builder()
@@ -59,7 +59,6 @@ public class ReelService {
         return toInfo(reelRepo.save(reel));
     }
 
-    // RF-08 Edicion
     public ReelInfo editar(Long reelId, Long usuarioId, String descripcion, List<Long> categoriaIds) {
         Reel reel = buscar(reelId);
         validarPropietario(reel, usuarioId);
@@ -73,7 +72,6 @@ public class ReelService {
         return toInfo(reelRepo.save(reel));
     }
 
-    // RF-09 Eliminacion
     public void eliminar(Long reelId, Long usuarioId) {
         Reel reel = buscar(reelId);
         validarPropietario(reel, usuarioId);
@@ -82,7 +80,6 @@ public class ReelService {
         cache.invalidar(reelId);
     }
 
-    // RF-10 Visualizacion
     public ReelInfo buscarPorId(Long id) {
         return toInfo(buscar(id));
     }
@@ -101,6 +98,20 @@ public class ReelService {
                 .stream().map(this::toInfo).toList();
     }
 
+    public void actualizarMetricas(Long reelId, String tipoEvento) {
+        Reel reel = buscar(reelId);
+
+        switch (tipoEvento) {
+            case "LIKE" -> reel.setContadorLikes(reel.getContadorLikes() + 1);
+            case "UNLIKE" -> reel.setContadorLikes(Math.max(0, reel.getContadorLikes() - 1));
+            case "COMENTARIO" -> reel.setContadorComentarios(reel.getContadorComentarios() + 1);
+            case "DEL_COMENTARIO" -> reel.setContadorComentarios(Math.max(0, reel.getContadorComentarios() - 1));
+            default -> throw new ReglaNegocioException("Tipo de evento no soportado para metricas: " + tipoEvento);
+        }
+
+        reelRepo.save(reel);
+    }
+
     private void validarPropietario(Reel reel, Long usuarioId) {
         if (!reel.getCanal().getUsuario().getId().equals(usuarioId)) {
             throw new AccesoDenegadoException("No tienes permiso para modificar este reel");
@@ -114,13 +125,14 @@ public class ReelService {
 
     private List<Categoria> obtenerCategoriasValidas(List<Long> categoriaIds) {
         List<Long> idsUnicos = categoriaIds.stream().distinct().toList();
-        List<Categoria> categorias = categoriaRepo.findAllById(idsUnicos);
 
-        if (categorias.size() != idsUnicos.size()) {
+        if (idsUnicos.stream().anyMatch(id -> !categoriaModuloApi.existePorId(id))) {
             throw new ReglaNegocioException("Una o mas categorias indicadas no existen");
         }
 
-        return categorias;
+        return idsUnicos.stream()
+                .map(id -> entityManager.getReference(Categoria.class, id))
+                .toList();
     }
 
     public ReelInfo toInfo(Reel r) {

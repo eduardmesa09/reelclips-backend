@@ -6,4 +6,5 @@ public interface IUsuarioModuloApi {
     UsuarioInfo buscarPorId(Long id);
     boolean existePorId(Long id);
     boolean estaActivo(Long id);
+    Long obtenerCanalId(Long usuarioId);
 }
