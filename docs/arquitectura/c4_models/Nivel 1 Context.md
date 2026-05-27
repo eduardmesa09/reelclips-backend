@@ -1,6 +1,6 @@
 # C4 Nivel 1 - Context Diagram
  
-Este diagrama muestra cómo los distintos tipos de usuarios interactúan con ReelClips y cómo el sistema se comunica con servicios externos como PostgreSQL, Redis y Supabase Storage.
+Este diagrama muestra cómo los distintos tipos de usuarios interactúan con ReelClips y cómo el sistema se comunica con servicios externos como PostgreSQL y Supabase Storage.
  
 ```mermaid
 flowchart LR
